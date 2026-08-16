@@ -16,7 +16,7 @@
   const FLAP = -7.2;
   const PIPE_W = 62;
   const PIPE_GAP = 148;
-  const PIPE_SPEED = 2.35;
+  const BASE_PIPE_SPEED = 2.35;
   const PIPE_SPACING = 210;
   const BIRD_X = 96;
   const BIRD_R = 14;
@@ -34,6 +34,51 @@
   let lastTs = 0;
   let pendingScore = null;
   let wingPhase = 0;
+  let pipeSpeed = BASE_PIPE_SPEED;
+  /** @type {AudioContext|null} */
+  let audioCtx = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    return audioCtx;
+  }
+
+  function beep(freq, dur, type, gain) {
+    const ctxA = ensureAudio();
+    if (!ctxA) return;
+    const t0 = ctxA.currentTime;
+    const osc = ctxA.createOscillator();
+    const g = ctxA.createGain();
+    osc.type = type || "square";
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(gain ?? 0.05, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    osc.connect(g);
+    g.connect(ctxA.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur);
+  }
+
+  function sfxFlap() {
+    beep(520, 0.07, "square", 0.04);
+  }
+
+  function sfxScore() {
+    beep(660, 0.08, "triangle", 0.05);
+    setTimeout(() => beep(880, 0.1, "triangle", 0.04), 70);
+  }
+
+  function sfxHit() {
+    beep(140, 0.22, "sawtooth", 0.06);
+  }
+
+  function currentGap() {
+    return Math.max(118, 148 - Math.floor(score / 5) * 6);
+  }
 
   function resetWorld() {
     birdY = H * 0.42;
@@ -42,6 +87,7 @@
     score = 0;
     groundOffset = 0;
     wingPhase = 0;
+    pipeSpeed = BASE_PIPE_SPEED;
     pipes = [];
     let x = W + 40;
     for (let i = 0; i < 4; i++) {
@@ -51,9 +97,10 @@
   }
 
   function makePipe(x) {
+    const gap = currentGap();
     const margin = 56;
-    const gapY = margin + Math.random() * (H - GROUND - PIPE_GAP - margin * 2);
-    return { x, gapY, passed: false };
+    const gapY = margin + Math.random() * (H - GROUND - gap - margin * 2);
+    return { x, gapY, gap, passed: false };
   }
 
   function flap() {
@@ -64,10 +111,12 @@
     if (state === "playing") {
       birdV = FLAP;
       wingPhase = 0;
+      sfxFlap();
     }
   }
 
   function startGame() {
+    ensureAudio();
     resetWorld();
     state = "playing";
     pendingScore = null;
@@ -81,6 +130,7 @@
   function die() {
     if (state !== "playing") return;
     state = "dead";
+    sfxHit();
     bestLocal = Math.max(bestLocal, score);
     localStorage.setItem("flappy-best", String(bestLocal));
     pendingScore = score;
@@ -107,20 +157,22 @@
         birdY = H * 0.42 + Math.sin(performance.now() / 320) * 8;
         birdRot = 0;
       }
-      groundOffset = (groundOffset + PIPE_SPEED * 0.6 * steps) % 28;
+      groundOffset = (groundOffset + BASE_PIPE_SPEED * 0.6 * steps) % 28;
       return;
     }
 
+    pipeSpeed = BASE_PIPE_SPEED + Math.min(1.6, score * 0.05);
     birdV += GRAVITY * steps;
     birdY += birdV * steps;
     birdRot = Math.max(-0.55, Math.min(1.1, birdV * 0.08));
-    groundOffset = (groundOffset + PIPE_SPEED * steps) % 28;
+    groundOffset = (groundOffset + pipeSpeed * steps) % 28;
 
     for (const p of pipes) {
-      p.x -= PIPE_SPEED * steps;
+      p.x -= pipeSpeed * steps;
       if (!p.passed && p.x + PIPE_W < BIRD_X) {
         p.passed = true;
         score += 1;
+        sfxScore();
       }
     }
 
@@ -146,9 +198,9 @@
   function hitPipe(p) {
     const r = BIRD_R * 0.88;
     const left = p.x;
-    const right = p.x + PIPE_W;
     const gapTop = p.gapY;
-    const gapBot = p.gapY + PIPE_GAP;
+    const gap = p.gap || 148;
+    const gapBot = p.gapY + gap;
 
     function circleHitsRect(rx, ry, rw, rh) {
       const cx = Math.max(rx, Math.min(BIRD_X, rx + rw));
@@ -188,8 +240,9 @@
 
   function drawPipes() {
     for (const p of pipes) {
+      const gap = p.gap || 148;
       drawPipeColumn(p.x, 0, p.gapY, true);
-      drawPipeColumn(p.x, p.gapY + PIPE_GAP, H - GROUND - (p.gapY + PIPE_GAP), false);
+      drawPipeColumn(p.x, p.gapY + gap, H - GROUND - (p.gapY + gap), false);
     }
   }
 
