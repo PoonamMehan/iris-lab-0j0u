@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Flappy Bird — tap or press space to flap through the pipes." />
+  <title>Flappy Bird</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <h1 class="brand">Flappy Bird</h1>
+      <p class="tagline">Tap, click, or press Space to flap</p>
+    </header>
+
+    <div class="stage-wrap">
+      <canvas id="game" width="400" height="600" aria-label="Flappy Bird game canvas"></canvas>
+      <div id="overlay" class="overlay" role="dialog" aria-live="polite">
+        <div class="panel">
+          <h2 id="overlay-title">Ready?</h2>
+          <p id="overlay-msg">Flap through the pipes. Don't hit the ground or the pipes.</p>
+          <button type="button" id="start-btn" class="btn">Play</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="board" aria-label="High scores">
+      <h2>High scores</h2>
+      <ol id="score-list">
+        <li class="empty">No scores yet — be the first!</li>
+      </ol>
+      <form id="score-form" class="score-form" hidden>
+        <label for="player-name">Name</label>
+        <div class="row">
+          <input id="player-name" name="name" maxlength="16" placeholder="You" autocomplete="nickname" />
+          <button type="submit" class="btn btn-sm">Save</button>
+        </div>
+      </form>
+    </aside>
+  </div>
+  <script src="/game.js" defer></script>
+</body>
+</html>

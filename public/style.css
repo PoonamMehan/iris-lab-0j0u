@@ -1,0 +1,213 @@
+:root {
+  --sky-top: #6ec6ff;
+  --sky-bot: #b8e4ff;
+  --grass: #5cb85c;
+  --dirt: #c4a35a;
+  --pipe: #3d9e3d;
+  --pipe-edge: #2d7a2d;
+  --bird: #f7d046;
+  --bird-beak: #f08a24;
+  --ink: #1a2a1a;
+  --panel: rgba(255, 255, 255, 0.92);
+  --accent: #e85d04;
+  --shadow: rgba(26, 42, 26, 0.18);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -10%, #dff4ff 0%, transparent 55%),
+    linear-gradient(180deg, #8fd3ff 0%, #c8ebc8 55%, #9fd49f 100%);
+  color: var(--ink);
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+}
+
+.top {
+  text-align: center;
+}
+
+.brand {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.55);
+  color: #1f5c1f;
+}
+
+.tagline {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+.stage-wrap {
+  position: relative;
+  width: min(400px, 92vw);
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 28px var(--shadow),
+    0 0 0 3px rgba(255, 255, 255, 0.45);
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot));
+  cursor: pointer;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 40, 60, 0.35);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.2s ease;
+}
+
+.overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel {
+  width: min(18rem, 86%);
+  padding: 1.25rem 1.1rem;
+  background: var(--panel);
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 8px 20px var(--shadow);
+}
+
+.panel h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
+}
+
+.panel p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #ff8c42, var(--accent));
+  box-shadow: 0 3px 0 #b34400;
+  cursor: pointer;
+}
+
+.btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #b34400;
+}
+
+.btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.board {
+  width: min(400px, 92vw);
+  padding: 0.85rem 1rem 1rem;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px var(--shadow);
+}
+
+.board h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+#score-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.55;
+}
+
+#score-list .empty {
+  list-style: none;
+  margin-left: -1.25rem;
+  opacity: 0.65;
+  font-size: 0.9rem;
+}
+
+.score-form {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(26, 42, 26, 0.12);
+}
+
+.score-form label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+  opacity: 0.75;
+}
+
+.score-form .row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.score-form input {
+  flex: 1;
+  border: 1px solid rgba(26, 42, 26, 0.2);
+  border-radius: 8px;
+  padding: 0.45rem 0.65rem;
+  font: inherit;
+  background: #fff;
+}
+
+@media (min-width: 700px) {
+  .app {
+    grid-template-columns: minmax(280px, 400px) 1fr;
+    align-items: start;
+    max-width: 760px;
+  }
+
+  .top {
+    grid-column: 1 / -1;
+  }
+
+  .board {
+    width: 100%;
+    margin-top: 0;
+  }
+}

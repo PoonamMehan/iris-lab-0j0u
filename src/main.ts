@@ -1,1 +1,2 @@
-// TODO: Add the main implementation entry point
+// Entry point is src/index.js (Bun/Node HTTP server).
+export {};
